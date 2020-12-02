@@ -35,6 +35,9 @@ class Posts(db.Model):
 
 @app.route('/')
 def home():
+    if ('mobilenum' in session) and ('password' in session):
+        session.pop('mobilenum', None)
+        session.pop('password', None)
     return render_template('ajax2.html')
 
 @app.route('/create',methods= ['POST'])
@@ -54,15 +57,6 @@ def createac():
 
 @app.route('/login', methods=['GET','POST'])
 def login():
-    if ('mobilenum' in session) and ('password' in session):
-        details = Information.query.filter_by(mobile=session['mobilenum'])
-        for elements in details:
-            if (sha256_crypt.verify(session['password'], elements.password)):
-                name_of_user = elements.name
-                return jsonify({'output': f'<div><h4>Already Logged in as {name_of_user}</h4></div>'+
-                                '<div ><button class="mx-4 btn btn-primary" id="myNotes">My Notes</button>'+
-                                '<button class="mx-4 btn-primary" id="sharedNotes">Shared Notes</button>'+
-                                '<button class="mx-4 btn btn-primary" id="AddNote">Add Note</button></div>'})
     mobile = request.form['mobile']
     password = request.form['password']
     if (password != '' and mobile != ''):
@@ -74,9 +68,11 @@ def login():
                 session['password'] = password
                 name_of_user = elements.name
                 return jsonify({'output': f'<div><h4>Logged in as {name_of_user}</h4></div>' +
-                                          '<div ><button class="mx-4 btn btn-primary" id="myNotes">My Notes</button>' +
+                                          '<div ><form id="myNotes" id="add_note" style="display:inline-block"><button '+
+                                          ' type="submit" class="mx-4 btn btn-primary" >My Notes</button></form>' +
                                           '<button class="mx-4 btn-primary" id="sharedNotes">Shared Notes</button>' +
-                                          '<button class="mx-4 btn btn-primary"  id="AddNote" onclick="toggleHide()">Add Note</button></div>'})
+                                          '<form id="add_note" style="display:inline-block"><button type="submit" class="mx-4 btn'+
+                                          ' btn-primary">Add Note</button></form></div>'})
     return jsonify({'error' : 'Missing data!'})
 
 
@@ -90,23 +86,54 @@ def logout():
 
 @app.route('/mynotes', methods=['POST'])
 def mynotes():
-    pass
+    all_post = Posts.query.filter_by(mobile=session['mobilenum'])
+    for element in all_post:
+        title = element.title
+        content = element.content
+        date = element.date
+        share = element.share
+    return jsonify({'output': '<div class="container">'+
+			'<div class="row">'+
+				'{% for post in element %}'+
+				'<div class="col-lg-4 border border-primary mx-2 my-4">'+
+					f'<p>{title}</p>'+
+					f'<p>{content}</p>'+
+					f'<p>Date = {date}</p>'+
+					f'<p>Mobile = {session["mobilenum"]}</p>'+
+
+					'<div class="d-flex">'+
+						'<form class=" mx-2" action="/edit/{{post.serial}}" method="POST">'+
+							'<button type="submit" class="btn btn-primary">Edit</button>'+
+						'</form>'+
+						'<form class=" mx-2" action="/delete/{{post.serial}}" method="POST">'+
+							'<button type="submit" class="btn btn-danger">Delete</button>'+
+						'</form>'+
+					'</div>'+
+				'</div>'+
+				'{% endfor %}'+
+			'</div>'+
+		'</div>'})
 
 @app.route('/addnote', methods=['POST'])
 def addnote():
-    return jsonify({'output': '<form id="add_form">' +
-                              '<input type="text" name="title" placeholder="Title" required>' +
+    return jsonify({'output': '<form class="container d-flex flex-column justify-content-center my-4" id="add_form">' +
+                              '<input type="text" id="title" name="title" placeholder="Title" required>' +
                               '<br>' +
-                              '<textarea name="content" id="content" cols="30" rows="10" placeholder="Notes" required></textarea>' +
+                              '<textarea id="content" name="content" id="content" cols="30" rows="10" placeholder="Notes" required></textarea>' +
                               '<br>' +
                               '<label for="Yes">Share</label>' +
-                              '<input type="radio" name="share" id="Yes" value="1">' +
+                              '<input type="radio" id="share" name="share" id="Yes" value="1">' +
                               '<br>' +
                               '<label for="No">Do not Share</label>' +
-                              '<input type="radio" name="share" id="No" value="0" checked>' +
+                              '<input type="radio" id="share" name="share" id="No" value="0" checked>' +
                               '<br>' +
                               '<button type="submit">Submit</button>' +
                               '</form>'})
+
+
+
+
+
 
 @app.route('/add', methods=['GET','POST'])
 def add():

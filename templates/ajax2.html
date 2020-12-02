@@ -100,26 +100,68 @@
                         // $('#output').text(data.output).show();
                         console.log(data)
                         output.innerHTML = data.output
+                        $(document).ready(function () {
+                            $('#add_note').on('submit', function (event) {
+                                $.ajax({
+                                    data: {
+                        
+                                    },
+                                    type: 'POST',
+                                    url: '/addnote'
+                                })
+                                .done(function (data) {
+                                    // $('#output').text(data.output).show();
+                                    console.log(data)
+                                    output.innerHTML = data.output
+                                    $(document).ready(function () {
+                            $('#add_form').on('submit', function (event) {
+                                $.ajax({
+                                    data: {
+                                        title: $('#title').val(),
+                                        content: $('#content').val(),
+                                        share: $('#share').val()
+                                    },
+                                    type: 'POST',
+                                    url: '/add'
+                                })
+                                .done(function (data) {
+                                    // $('#output').text(data.output).show();
+                                    console.log(data)
+                                    output.innerHTML = data.output
+                                });
+                                event.preventDefault();
+                            });
+                            
+                        });
+                                });
+                                event.preventDefault();
+                            });
+                        });
+                        $(document).ready(function () {
+                            $('#myNotes').on('submit', function (event) {
+                                $.ajax({
+                                    data: {
+                                    },
+                                    type: 'POST',
+                                    url: '/mynotes'
+                                })
+                                .done(function (data) {
+                                    // $('#output').text(data.output).show();
+                                    console.log(data)
+                                    output.innerHTML = data.output
+                                });
+                                event.preventDefault();
+                            });
+                        });
                     });
                 event.preventDefault();
             });
-            // $('#AddNote').on('submit', function (event) {
-               
-            // });
+            
             
         });
-        function toggelHide(){
-                $.ajax({
-                    data: '',
-                    type: 'POST',
-                    url: '/addnote'
-                })
-                    .done(function (data) {
-                        console.log(data)
-                        output.innerHTML = data.output
-                    });
-                event.preventDefault();
-            }
+
+        
+        
     </script>
 </body>
 
