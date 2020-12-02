@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ajax 2</title>
+	<link rel="icon" href="{{url_for('static', filename='img/logo.png')}}" type="image/png" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.css')}}">
+</head>
+<body>
+
+	<nav class="d-flex justify-content-between flex-wrap navbar navbar-expand-sm bg-dark navbar-dark">
+		
+		
+		<ul class="navbar-nav">
+			<img style="max-height: 40px;filter: invert(100%);" src="{{url_for('static', filename='img/logo.png')}}" alt="Error">
+		  <li class="nav-item active">
+			<a class="nav-link" href="/">My Notes</a>
+		  </li>
+		 
+		  <li class="nav-item">
+			<a class="nav-link" id="signup_button">Signup</a>
+		  </li>
+		  <li class="nav-item">
+			<a class="nav-link" id="login_button">Login</a>
+		  </li>
+		  <li class="nav-item pointer active" >
+			<a class="nav-link pointer" href="/logout" >Logout</a>
+		  </li>
+		  
+		</ul>
+		<form class="d-flex" action="/search" method="POST">
+			<input class="form-control mr-sm-2" type="text" name="search" placeholder="Name">
+			<button class="btn btn-success" type="submit">Search</button>
+		  </form>
+    </nav>
+  
+
+
+    <div id="output">
+        <div class="container d-flex flex-wrap my-4 h-100">
+            <div id="create_flash_msg" class="row col-xl-6 w-100">
+                <form id="signupform" class="d-flex  align-items-center flex-column w-75 h-100">
+                    <h1>Signup</h1>
+                    <input type="text" class="form-control mb-2 mr-sm-2" id="name" placeholder="Name" required>
+                    <input type="password" class="form-control mb-2 mr-sm-2" id="password" placeholder="Password" required>
+                    <input type="number" class="form-control mb-2 mr-sm-2" id="mobile" placeholder="Mobile Number" required>
+                    <input type="text" class="form-control mb-2 mr-sm-2" id="bio" placeholder="Bio" required>
+                    <button type="submit" class="btn btn-primary mb-2">Signup</button>
+                </form>
+            </div>
+            <div class="col-xl-6 w-100">
+                <form id="loginform" class="d-flex  align-items-center flex-column w-75 h-100">
+                    <h1>Login</h1>
+                    <input type="number" class="form-control mb-2 mr-sm-2" placeholder="Mobile Number" name="mobilel" id="mobilel" required>
+                    <input type="password" class="form-control mb-2 mr-sm-2" placeholder="Enter password" name="passwordl" id="passwordl" required>
+                    <button type="submit" class="btn btn-primary mb-2">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </br>
+
+
+
+    
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        let output = document.getElementById('output')
+        let create_flash_msg = document.getElementById('create_flash_msg')
+        $(document).ready(function () {
+            $('#signupform').on('submit', function (event) {
+                $.ajax({
+                    data: {
+                        name: $('#name').val(),
+                        password: $('#password').val(),
+                        mobile: $('#mobile').val(),
+                        bio: $('#bio').val()
+                    },
+                    type: 'POST',
+                    url: '/create'
+                })
+                    .done(function (data) {
+                        // $('#output').text(data.output).show();
+                        console.log(data)
+                        create_flash_msg.innerHTML = data.output
+                    });
+                event.preventDefault();
+            });
+            $('#loginform').on('submit', function (event) {
+                $.ajax({
+                    data: {
+                        mobile: $('#mobilel').val(),
+                        password: $('#passwordl').val()
+                    },
+                    type: 'POST',
+                    url: '/login'
+                })
+                    .done(function (data) {
+                        // $('#output').text(data.output).show();
+                        console.log(data)
+                        output.innerHTML = data.output
+                    });
+                event.preventDefault();
+            });
+            // $('#AddNote').on('submit', function (event) {
+               
+            // });
+            
+        });
+        function toggelHide(){
+                $.ajax({
+                    data: '',
+                    type: 'POST',
+                    url: '/addnote'
+                })
+                    .done(function (data) {
+                        console.log(data)
+                        output.innerHTML = data.output
+                    });
+                event.preventDefault();
+            }
+    </script>
+</body>
+
+</html>
