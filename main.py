@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/mynotes'
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 app.secret_key = 'This_is_a_secret_key'
-app.permanent_session_lifetime = timedelta(minutes=100)
+app.permanent_session_lifetime = timedelta(minutes=20)
 db = SQLAlchemy(app)
 
 
