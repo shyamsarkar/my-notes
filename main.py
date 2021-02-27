@@ -1,7 +1,7 @@
 from flask import Flask,request,render_template,jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
-from passlib.hash import sha256_crypt
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
@@ -13,7 +13,7 @@ app.permanent_session_lifetime = timedelta(minutes=100)
 db = SQLAlchemy(app)
 
 
-class Information(db.Model):
+class UserInfo(db.Model):
     serial=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String(80), nullable=False, unique=True)
     password=db.Column(db.String(25), nullable=False)
@@ -38,7 +38,7 @@ def home():
     if ('mobilenum' in session) and ('password' in session):
         session.pop('mobilenum', None)
         session.pop('password', None)
-    return render_template('ajax2.html')
+    return render_template('index.html')
 
 @app.route('/create',methods= ['POST'])
 def createac():
@@ -48,7 +48,7 @@ def createac():
     bio = request.form['bio']
     date = datetime.now()
     if (name != '' and password != '' and mobile != ''):
-        hashed_pass = sha256_crypt.encrypt(password)
+        hashed_pass = generate_password_hash(password, method='sha256')
         entered_data = Information(name=name, password=hashed_pass, mobile=mobile, date=date, bio=bio)
         db.session.add(entered_data)
         db.session.commit()
@@ -62,7 +62,7 @@ def login():
     if (password != '' and mobile != ''):
         details = Information.query.filter_by(mobile=mobile)
         for elements in details:
-            if (sha256_crypt.verify(password, elements.password)):
+            if (check_password_hash(password, elements.password)):
                 session.permanent = True
                 session['mobilenum'] = mobile
                 session['password'] = password
